@@ -1,25 +1,71 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import Home from "./pages/home/Home";
+import MyState from "./context/data/myState";
+import Order from "./pages/Order/Order";
+import NoPage from "./pages/nopage/Nopage";
+import Cart from "./pages/cart/Cart";
+import Dashboard from "./pages/admin/dashboard/Dashboard";
+import ProductInfo from "./pages/productInfo/ProductInfo";
+import Login from "./pages/registration/Login";
+import Signup from "./pages/registration/Signup";
+import Allproducts from "./pages/allproducts/AllProduct"; // import Allproducts component
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import AddProduct from "./pages/admin/pages/AddProduct";
+import UpdateProduct from "./pages/admin/pages/UpdateProduct";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <MyState>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/order" element={
+            <ProtectedRoutes>
+              <Order />
+            </ProtectedRoutes>
+          } />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoutesForAdmin><Dashboard /></ProtectedRoutesForAdmin>
+          } />
+          <Route path="/productinfo/:id" element={<ProductInfo />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/addproduct" element={
+            <ProtectedRoutesForAdmin><AddProduct /></ProtectedRoutesForAdmin>} />
+          <Route path="/updateproduct" element={
+            <ProtectedRoutesForAdmin><UpdateProduct /></ProtectedRoutesForAdmin>} />
+          <Route path="/allproducts" element={<Allproducts />} /> {/* New route for all products */}
+          <Route path="/*" element={<NoPage />} />
+        </Routes>
+        <ToastContainer />
+      </Router>
+    </MyState>
   );
 }
 
 export default App;
+
+export const ProtectedRoutes = ({ children }) => {
+  if (localStorage.getItem('user')) {
+    return children;
+  } else {
+    return <Navigate to='/login' />;
+  }
+};
+
+export const ProtectedRoutesForAdmin = ({ children }) => {
+  const admin = JSON.parse(localStorage.getItem('user'));
+  console.log(admin.user.email);
+  if (admin.user.email === 'prakashsuriya1095@gmail.com') {
+    return children;
+  } else {
+    return <Navigate to='/login' />;
+  }
+};
